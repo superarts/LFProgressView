@@ -12,12 +12,10 @@
 @interface LDProgressView ()
 @property (nonatomic) CGFloat offset;
 @property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic) CGFloat stripeWidth;
 @property (nonatomic, strong) UIImage *gradientProgress;
 @property (nonatomic) CGSize stripeSize;
 
 @property (nonatomic, strong) NSString *progressTextOverride;
-@property (nonatomic, strong) UIColor *progressTextColorOverride;
 
 // Animation of progress
 @property (nonatomic, strong) NSTimer *animationTimer;
@@ -45,7 +43,11 @@
 
 - (void)initialize {
     self.backgroundColor = [UIColor clearColor];
-    self.textAlignment = NSTextAlignmentRight;
+	self.textAlignment = NSTextAlignmentRight;
+	self.showTextShadow = NO;
+	//	TODO: default stripe width for gradient should be 15
+	self.stripeWidth = 50;
+	self.stripeSlope = 0.25;
 }
 
 - (void)setAnimate:(NSNumber *)animate {
@@ -189,7 +191,7 @@
     }
 
     if ([self.showText boolValue]) {
-        [self drawLabelInRect:insetRect];
+        [self drawRightAlignedLabelInRect:insetRect];
     }
 }
 
@@ -213,9 +215,9 @@
     while (xStart < rect.size.width) {
         CGContextSaveGState(context);
         CGContextMoveToPoint(context, xStart, height + y);
-        CGContextAddLineToPoint(context, xStart + width * 0.25, 0);
-        CGContextAddLineToPoint(context, xStart + width * 0.75, 0);
-        CGContextAddLineToPoint(context, xStart + width * 0.50, height + y);
+        CGContextAddLineToPoint(context, xStart + width * self.stripeSlope, 0);
+        CGContextAddLineToPoint(context, xStart + width * (self.stripeSlope + 0.5), 0);
+        CGContextAddLineToPoint(context, xStart + width * 0.5, height + y);
         CGContextClosePath(context);
         CGContextFillPath(context);
         CGContextRestoreGState(context);
@@ -224,17 +226,24 @@
     CGContextRestoreGState(context);
 }
 
-- (void)drawLabelInRect:(CGRect)rect {
+- (void)drawRightAlignedLabelInRect:(CGRect)rect {
     if (rect.size.width > 40) {
+		CGFloat offsetY = 0;
         UILabel *label = [[UILabel alloc] initWithFrame:rect];
         label.adjustsFontSizeToFitWidth = YES;
         label.backgroundColor = [UIColor clearColor];
         label.textAlignment = self.textAlignment;
         label.text = self.progressTextOverride ? self.progressTextOverride : [NSString stringWithFormat:@"%.0f%%", self.progress*100];
-        label.font = [UIFont boldSystemFontOfSize:17-self.progressInset.floatValue*1.75];
+		label.font = self.font ? self.font : [UIFont boldSystemFontOfSize:17-self.progressInset.floatValue*1.75];
         UIColor *baseLabelColor = [self.color isLighterColor] ? [UIColor blackColor] : [UIColor whiteColor];
-        label.textColor = self.progressTextColorOverride ? self.progressTextColorOverride : [baseLabelColor colorWithAlphaComponent:0.6];
-        [label drawTextInRect:CGRectMake(rect.origin.x + 6, rect.origin.y, rect.size.width-12, rect.size.height)];
+		label.textColor = self.textColor ? self.textColor : [baseLabelColor colorWithAlphaComponent:0.6];
+		if (self.showTextShadow)
+		{
+			label.shadowColor	= [UIColor blackColor];
+			label.shadowOffset	= CGSizeMake(0, 1);
+			offsetY = -1;
+		}
+        [label drawTextInRect:CGRectMake(rect.origin.x + 6, rect.origin.y + offsetY, rect.size.width-12, rect.size.height)];
     }
 }
 
@@ -287,6 +296,7 @@
     return _color;
 }
 
+#if 0
 - (CGFloat)stripeWidth {
     switch (self.type) {
         case LDProgressGradient:
@@ -298,6 +308,7 @@
     }
     return _stripeWidth;
 }
+#endif
 
 - (NSNumber *)borderRadius {
     if (!_borderRadius) {
@@ -338,12 +349,5 @@
     self.progressTextOverride = progressText;
     [self setNeedsDisplay];
 }
-
-- (void)overrideProgressTextColor:(UIColor *)progressTextColor {
-    self.progressTextColorOverride = progressTextColor;
-    [self setNeedsDisplay];
-}
-
-
 
 @end
