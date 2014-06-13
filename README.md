@@ -1,3 +1,45 @@
+# LFProgressView
+
+Some additional properties have been added to draw something like this:
+
+https://www.dropbox.com/s/dmyebdgkx8zb1j9/Screenshot%202014-06-13%2012.21.35.png
+
+With these additional code:
+
+```
+		progress1.textAlignment = NSTextAlignmentLeft;
+		progress1.textColor = [UIColor whiteColor];
+		progress1.showTextShadow = YES;
+		progress1.font = [UIFont fontWithName:@"Ubuntu-Bold" size:11.5];
+		progress1.background = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.50f];
+		progress1.stripeWidth = 10;
+		progress1.stripeSlope = 2;
+```
+
+The other code works for the original LDProgressView:
+
+```
+		LDProgressView* progress1 = [[LDProgressView alloc] initWithFrame:CGRectMake(20, 41, self.view.frame.size.width-40, 20)];
+		progress1.flat = @YES;
+		progress1.showStroke = @NO;
+		progress1.showBackground = @YES;
+		progress1.showBackgroundInnerShadow = @NO;
+		progress1.outerStrokeWidth = @0;
+		progress1.progressInset = @-1;
+		progress1.progress = 0.40;
+		progress1.labelProgress = 0.0;
+		progress1.borderRadius = @0;
+		progress1.type = LDProgressStripes;
+		progress1.color = [UIColor orangeColor];
+
+		[progress1 overrideProgressText:@"test1"];
+		[subview addSubview:progress1];
+```
+
+Please check the message below for LDProgressView.
+
+----
+
 LDProgressView (v. 1.2)
 ==============
 
