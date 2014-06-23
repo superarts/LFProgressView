@@ -43,11 +43,6 @@
 
 - (void)initialize {
     self.backgroundColor = [UIColor clearColor];
-	self.textAlignment = NSTextAlignmentRight;
-	self.showTextShadow = NO;
-	//	TODO: default stripe width for gradient should be 15
-	self.stripeWidth = 50;
-	self.stripeSlope = 0.25;
 }
 
 - (void)setAnimate:(NSNumber *)animate {
@@ -62,6 +57,11 @@
 
 - (void)setProgress:(CGFloat)progress {
     self.progressToAnimateTo = progress;
+	if ([self.showTextAlways boolValue] && (self.progressToAnimateTo == 0))
+		self.progressToAnimateTo = 0.000001;	//FLT_MIN;
+	else if ([self.showTextAlways boolValue] && (self.progressToAnimateTo == 1))
+		self.progressToAnimateTo = 0.999999;	//1-FLT_MIN/FLT_MIN;
+
     if ([self.animate boolValue]) {
         if (self.animationTimer) {
             [self.animationTimer invalidate];
@@ -86,7 +86,7 @@
 
 - (void)incrementOffset {
     if (self.offset >= 0) {
-        self.offset = -self.stripeWidth;
+        self.offset = -[self.stripeWidth floatValue];
     } else {
         self.offset += 1;
     }
@@ -191,18 +191,21 @@
     }
 
     if ([self.showText boolValue]) {
-        [self drawRightAlignedLabelInRect:insetRect];
+		if ([self.showTextAlways boolValue])
+			[self drawRightAlignedLabelInRect:rectToDrawIn];
+		else
+			[self drawRightAlignedLabelInRect:insetRect];
     }
 }
 
 - (void)drawGradients:(CGContextRef)context inRect:(CGRect)rect {
-    self.stripeSize = CGSizeMake(self.stripeWidth, rect.size.height);
+    self.stripeSize = CGSizeMake([self.stripeWidth floatValue], rect.size.height);
     CGContextSaveGState(context);
     [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:self.borderRadius.floatValue] addClip];
     CGFloat xStart = self.offset;
     while (xStart < rect.size.width) {
         [self.gradientProgress drawAtPoint:CGPointMake(xStart, 0)];
-        xStart += self.stripeWidth;
+        xStart += [self.stripeWidth floatValue];
     }
     CGContextRestoreGState(context);
 }
@@ -211,12 +214,12 @@
     CGContextSaveGState(context);
     [[UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:self.borderRadius.floatValue] addClip];
     CGContextSetFillColorWithColor(context, [[UIColor whiteColor] colorWithAlphaComponent:0.2].CGColor);
-    CGFloat xStart = self.offset, height = rect.size.height, width = self.stripeWidth, y = rect.origin.y;
+    CGFloat xStart = self.offset, height = rect.size.height, width = [self.stripeWidth floatValue], y = rect.origin.y;
     while (xStart < rect.size.width) {
         CGContextSaveGState(context);
         CGContextMoveToPoint(context, xStart, height + y);
-        CGContextAddLineToPoint(context, xStart + width * self.stripeSlope, 0);
-        CGContextAddLineToPoint(context, xStart + width * (self.stripeSlope + 0.5), 0);
+        CGContextAddLineToPoint(context, xStart + width * [self.stripeSlope floatValue], 0);
+        CGContextAddLineToPoint(context, xStart + width * ([self.stripeSlope floatValue] + 0.5), 0);
         CGContextAddLineToPoint(context, xStart + width * 0.5, height + y);
         CGContextClosePath(context);
         CGContextFillPath(context);
@@ -227,24 +230,25 @@
 }
 
 - (void)drawRightAlignedLabelInRect:(CGRect)rect {
-    if (rect.size.width > 40) {
-		CGFloat offsetY = 0;
-        UILabel *label = [[UILabel alloc] initWithFrame:rect];
-        label.adjustsFontSizeToFitWidth = YES;
-        label.backgroundColor = [UIColor clearColor];
-        label.textAlignment = self.textAlignment;
-        label.text = self.progressTextOverride ? self.progressTextOverride : [NSString stringWithFormat:@"%.0f%%", self.progress*100];
-		label.font = self.font ? self.font : [UIFont boldSystemFontOfSize:17-self.progressInset.floatValue*1.75];
-        UIColor *baseLabelColor = [self.color isLighterColor] ? [UIColor blackColor] : [UIColor whiteColor];
-		label.textColor = self.textColor ? self.textColor : [baseLabelColor colorWithAlphaComponent:0.6];
-		if (self.showTextShadow)
-		{
-			label.shadowColor	= [UIColor blackColor];
-			label.shadowOffset	= CGSizeMake(0, 1);
-			offsetY = -1;
-		}
-        [label drawTextInRect:CGRectMake(rect.origin.x + 6, rect.origin.y + offsetY, rect.size.width-12, rect.size.height)];
-    }
+    if ((rect.size.width <= 40) && ([self.showTextAlways boolValue] == NO))
+		return;
+
+	CGFloat offsetY = 0;
+	UILabel *label = [[UILabel alloc] initWithFrame:rect];
+	label.adjustsFontSizeToFitWidth = YES;
+	label.backgroundColor = [UIColor clearColor];
+	label.textAlignment = [self.textAlignment intValue];
+	label.text = self.progressTextOverride ? self.progressTextOverride : [NSString stringWithFormat:@"%.0f%%", self.progress*100];
+	label.font = self.font ? self.font : [UIFont boldSystemFontOfSize:17-self.progressInset.floatValue*1.75];
+	UIColor *baseLabelColor = [self.color isLighterColor] ? [UIColor blackColor] : [UIColor whiteColor];
+	label.textColor = self.textColor ? self.textColor : [baseLabelColor colorWithAlphaComponent:0.6];
+	if ([self.showTextShadow boolValue])
+	{
+		label.shadowColor	= [UIColor blackColor];
+		label.shadowOffset	= CGSizeMake(0, 1);
+		offsetY = -1;
+	}
+	[label drawTextInRect:CGRectMake(rect.origin.x + 6, rect.origin.y + offsetY, rect.size.width-12, rect.size.height)];
 }
 
 #pragma mark - Accessors
@@ -298,17 +302,34 @@
 
 #if 0
 - (CGFloat)stripeWidth {
-    switch (self.type) {
-        case LDProgressGradient:
-            _stripeWidth = 15;
-            break;
-        default:
-            _stripeWidth = 50;
-            break;
-    }
-    return _stripeWidth;
+	if (!_stripeWidth)
+	{
+		switch (self.type) {
+			case LDProgressGradient:
+				_stripeWidth = @(15.0);
+				break;
+			default:
+				_stripeWidth = @(50.0);
+				break;
+		}
+	}
+    return [_stripeWidth floatValue];
 }
 #endif
+
+- (NSNumber*)stripeWidth 
+{
+	if (!_stripeWidth)
+		return @(50.0);
+	return _stripeWidth;
+}
+
+- (NSNumber*)stripeSlope 
+{
+	if (!_stripeSlope)
+		return @(0.25);
+	return _stripeSlope;
+}
 
 - (NSNumber *)borderRadius {
     if (!_borderRadius) {
@@ -348,6 +369,27 @@
 - (void)overrideProgressText:(NSString *)progressText {
     self.progressTextOverride = progressText;
     [self setNeedsDisplay];
+}
+
+- (NSNumber*)textAlignment
+{
+	if (!_textAlignment) 
+		return @(NSTextAlignmentRight);
+	return _textAlignment;
+}
+
+- (NSNumber*)showTextShadow
+{
+	if (!_showTextShadow)
+		return @(NO);
+	return _showTextShadow;
+}
+
+- (NSNumber*)showTextAlways
+{
+	if (!_showTextAlways)
+		return @(NO);
+	return _showTextAlways;
 }
 
 @end

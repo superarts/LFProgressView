@@ -4,6 +4,31 @@ Some additional properties have been added to draw something like this:
 
 https://www.dropbox.com/s/dmyebdgkx8zb1j9/Screenshot%202014-06-13%2012.21.35.png
 
+Since 1.3.2 more appearance are added:
+
+```
+	//	appearance
+	[[LFProgressView appearance] setFlat:@YES];
+	[[LFProgressView appearance] setShowStroke:@NO];
+	[[LFProgressView appearance] setShowBackground:@YES];
+	[[LFProgressView appearance] setShowBackgroundInnerShadow:@NO];
+	[[LFProgressView appearance] setOuterStrokeWidth:@0];
+	[[LFProgressView appearance] setProgressInset:@-1];
+	[[LFProgressView appearance] setBorderRadius:@0];
+
+	//	LFProgressView 1.3.2
+	[[LFProgressView appearance] setTextColor:[UIColor whiteColor]];
+	[[LFProgressView appearance] setTextAlignment:@(NSTextAlignmentLeft)];
+	[[LFProgressView appearance] setShowTextShadow:@(YES)];
+	[[LFProgressView appearance] setShowTextAlways:@(YES)];
+	[[LFProgressView appearance] setFont:[UIFont fontWithName:@"Ubuntu-Bold" size:11]];
+	[[LFProgressView appearance] setBackground:[UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:0.50f]];
+	[[LFProgressView appearance] setStripeWidth:@(10)];
+	[[LFProgressView appearance] setStripeSlope:@(2)];
+```
+
+Below 1.3.1
+
 With these additional code:
 
 ```

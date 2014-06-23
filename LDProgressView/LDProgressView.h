@@ -33,13 +33,14 @@ typedef enum {
 @property (nonatomic, strong) NSNumber *progressInset UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) NSNumber *borderRadius UI_APPEARANCE_SELECTOR;
 
-//	TODO: ui appearance support; use a label for styling
-@property (nonatomic) NSTextAlignment	textAlignment;
-@property (nonatomic) BOOL				showTextShadow;
-@property (nonatomic, strong) UIFont*	font;
-@property (nonatomic, strong) UIColor*	textColor;
-@property (nonatomic) CGFloat stripeWidth;
-@property (nonatomic) CGFloat stripeSlope;
+@property (nonatomic, strong) UIColor*	textColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic, strong) UIFont*	font UI_APPEARANCE_SELECTOR;
+
+@property (nonatomic) NSNumber*			textAlignment UI_APPEARANCE_SELECTOR;
+@property (nonatomic) NSNumber*			showTextShadow UI_APPEARANCE_SELECTOR;
+@property (nonatomic) NSNumber*			showTextAlways UI_APPEARANCE_SELECTOR;
+@property (nonatomic) NSNumber* 		stripeWidth UI_APPEARANCE_SELECTOR;
+@property (nonatomic) NSNumber*			stripeSlope UI_APPEARANCE_SELECTOR;
 
 @property (nonatomic) LDProgressType type;
 
