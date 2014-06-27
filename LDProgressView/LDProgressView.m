@@ -194,7 +194,7 @@
 		if ([self.showTextAlways boolValue])
 			[self drawRightAlignedLabelInRect:rectToDrawIn];
 		else
-			[self drawRightAlignedLabelInRect:insetRect];
+			[self drawRightAlignedLabelInRect:self.frame];
     }
 }
 
@@ -248,7 +248,9 @@
 		label.shadowOffset	= CGSizeMake(0, 1);
 		offsetY = -1;
 	}
-	[label drawTextInRect:CGRectMake(rect.origin.x + 6, rect.origin.y + offsetY, rect.size.width-12, rect.size.height)];
+	//	TODO: add UIAppearance "show full progress text"
+	//[label drawTextInRect:CGRectMake(rect.origin.x + 6, rect.origin.y + offsetY, rect.size.width-12, rect.size.height)];
+	[label drawTextInRect:CGRectMake(rect.origin.x + 6, rect.origin.y + offsetY, self.frame.size.width - rect.origin.x - 10, rect.size.height)];
 }
 
 #pragma mark - Accessors
