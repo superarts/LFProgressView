@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 	s.name = 'LFProgressView'
-	s.version = '1.3.2'
+	s.version = '1.3.3'
 	s.summary = 'A configurable progress view with a single color setter written in CoreGraphics from LDProgressView'
 	s.description = 'A flat or gradient progress view with a simple color setter and customizable options written in pure Core Graphics. Added some attributes to LDProgressView.'
 	s.homepage = 'https://github.com/superarts/LDProgressView'
