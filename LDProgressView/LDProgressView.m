@@ -67,6 +67,12 @@
             [self.animationTimer invalidate];
         }
         self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:0.008 target:self selector:@selector(incrementAnimatingProgress) userInfo:nil repeats:YES];
+
+		if ([self.animationEnabled boolValue] == NO) {
+			_progress = self.progressToAnimateTo;
+			[self.animationTimer invalidate];
+			[self setNeedsDisplay];
+		}
     } else {
         _progress = progress;
         [self setNeedsDisplay];
@@ -345,6 +351,13 @@
         return [UIColor colorWithRed:0.51f green:0.51f blue:0.51f alpha:1.00f];
     }
     return _background;
+}
+
+- (NSNumber *)animationEnabled {
+    if (!_animationEnabled) {
+        return @YES;
+    }
+    return _animationEnabled;
 }
 
 - (NSNumber *)showStroke {
