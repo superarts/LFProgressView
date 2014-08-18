@@ -284,7 +284,7 @@
 
 - (NSNumber *)animate {
     if (_animate == nil) {
-        return @YES;
+        return @NO;
     }
     return _animate;
 }
